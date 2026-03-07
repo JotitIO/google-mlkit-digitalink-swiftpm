@@ -25,7 +25,6 @@ let package = Package(
         .package(url: "https://github.com/google/GoogleUtilities.git", exact: "8.1.0"),
         .package(url: "https://github.com/google/gtm-session-fetcher.git", exact: "3.5.0"),
         .package(url: "https://github.com/firebase/nanopb.git", exact: "2.30910.0"),
-        .package(url: "https://github.com/ZipArchive/ZipArchive.git", exact: "2.6.0"),
     ],
     targets: [
         .binaryTarget(
@@ -53,7 +52,6 @@ let package = Package(
             dependencies: [
                 "MLKitCommon",
                 "GoogleToolboxForMac",
-                .product(name: "ZipArchive", package: "ZipArchive"),
                 .product(name: "FBLPromises", package: "promises"),
                 .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
                 .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
