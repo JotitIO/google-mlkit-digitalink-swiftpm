@@ -53,7 +53,7 @@ let package = Package(
             dependencies: [
                 "MLKitCommon",
                 "GoogleToolboxForMac",
-                .product(name: "SSZipArchive", package: "ZipArchive"),
+                .product(name: "ZipArchive", package: "ZipArchive"),
                 .product(name: "FBLPromises", package: "promises"),
                 .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
                 .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
