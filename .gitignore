@@ -1,0 +1,4 @@
+xcframeworks/
+Pods/
+.build/
+*.xcframework.zip
