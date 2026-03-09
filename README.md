@@ -78,4 +78,116 @@ Gate feature usage on `ModelManager.modelManager().isModelDownloaded(model)` and
 
 ## Updating to a new MLKit version
 
-See `scripts/build.sh` for the build process.
+Follow these steps when a new `MLKitDigitalInkRecognition` / `MLKitCommon` / `MLKitMDD` CocoaPod version is released.
+
+### 1. Build the device + x86_64-simulator xcframeworks
+
+```bash
+./scripts/build.sh <MLKitDigitalInkRecognition-version> <MLKitMDD-version> <MLKitCommon-version>
+# e.g. ./scripts/build.sh 8.0.0 10.0.0 14.0.0
+```
+
+This downloads the CocoaPod tarballs, slices the fat binaries, wraps Mach-O objects in `ar` archives, and produces zipped xcframeworks in `xcframeworks/`. It also prints the SHA-256 checksums you will need later.
+
+### 2. Add `CFBundleExecutable` to any framework Info.plist that is missing it
+
+The installer requires this key. `MLKitCommon` and `GoogleToolboxForMac` include it already; `MLKitDigitalInkRecognition` and `MLKitMDD` do not. Run for any that are missing it:
+
+```bash
+plutil -insert CFBundleExecutable -string "MLKitDigitalInkRecognition" \
+  xcframeworks/MLKitDigitalInkRecognition.xcframework/ios-arm64/MLKitDigitalInkRecognition.framework/Info.plist
+plutil -insert CFBundleExecutable -string "MLKitMDD" \
+  xcframeworks/MLKitMDD.xcframework/ios-arm64/MLKitMDD.framework/Info.plist
+# also for the x86_64-simulator slices
+```
+
+### 3. Check for public API changes
+
+Compare the new version's headers (in `xcframeworks/MLKitDigitalInkRecognition.xcframework/ios-arm64/MLKitDigitalInkRecognition.framework/Headers/`) against the current stub in `stubs/MLKitStub.m`. Look for:
+
+- New classes that app code might reference
+- Renamed initializers or methods
+- New classes in `MLKitCommon` headers (`stubs/MLKitCommonStub.m`) such as new `ModelManager` methods
+
+### 4. Update the arm64 simulator stubs if needed
+
+The stubs live in `stubs/MLKitStub.m` (for `MLKitDigitalInkRecognition`) and `stubs/MLKitCommonStub.m` (for `MLKitCommon`). Add any new public classes or methods as no-ops following the existing pattern, then recompile:
+
+```bash
+# MLKitDigitalInkRecognition stub
+xcrun --sdk iphonesimulator clang \
+  -arch arm64 -mios-simulator-version-min=16.0 -fobjc-arc \
+  -c stubs/MLKitStub.m -o stubs/MLKitStub.o
+
+# MLKitCommon stub
+xcrun --sdk iphonesimulator clang \
+  -arch arm64 -mios-simulator-version-min=16.0 -fobjc-arc \
+  -c stubs/MLKitCommonStub.m -o stubs/MLKitCommonStub.o
+
+# MLKitMDD and GoogleToolboxForMac use empty stubs
+xcrun --sdk iphonesimulator clang \
+  -arch arm64 -mios-simulator-version-min=16.0 \
+  -c stubs/empty.m -o stubs/empty.o
+
+xcrun --sdk iphonesimulator ar rcs stubs/libMLKitDigitalInkRecognition-arm64sim.a stubs/MLKitStub.o
+xcrun --sdk iphonesimulator ar rcs stubs/libMLKitCommon-arm64sim.a stubs/MLKitCommonStub.o
+xcrun --sdk iphonesimulator ar rcs stubs/libMLKitMDD-arm64sim.a stubs/empty.o
+```
+
+### 5. Build fat simulator binaries and combine into xcframeworks
+
+For each framework: combine the existing `ios-x86_64-simulator` binary with the new arm64 stub using `lipo`, then rebuild the xcframework with both slices.
+
+```bash
+# Example for MLKitDigitalInkRecognition
+xcrun lipo -create \
+  xcframeworks/MLKitDigitalInkRecognition.xcframework/ios-x86_64-simulator/MLKitDigitalInkRecognition.framework/MLKitDigitalInkRecognition \
+  stubs/libMLKitDigitalInkRecognition-arm64sim.a \
+  -output sim-combined/MLKitDigitalInkRecognition
+
+# Copy the combined binary into a simulator framework bundle (copy headers, Info.plist
+# from the x86_64-simulator slice first, then replace the binary)
+
+xcodebuild -create-xcframework \
+  -framework xcframeworks/MLKitDigitalInkRecognition.xcframework/ios-arm64/MLKitDigitalInkRecognition.framework \
+  -framework sim-combined/MLKitDigitalInkRecognition.framework \
+  -output xcframeworks_final/MLKitDigitalInkRecognition.xcframework
+```
+
+Repeat for `MLKitCommon`, `MLKitMDD`, and `GoogleToolboxForMac` (for GoogleToolboxForMac, check whether the new d-date release already includes arm64 simulator — if so, use it directly).
+
+Re-zip each xcframework and record the SHA-256 checksums:
+
+```bash
+cd xcframeworks_final
+for fw in MLKitDigitalInkRecognition MLKitCommon MLKitMDD GoogleToolboxForMac; do
+  zip -qr "${fw}.xcframework.zip" "${fw}.xcframework"
+  shasum -a 256 "${fw}.xcframework.zip"
+done
+```
+
+### 6. Create a new GitHub release
+
+```bash
+gh release create <new-version> \
+  --repo JotitIO/google-mlkit-digitalink-swiftpm \
+  --title "<new-version>" \
+  xcframeworks_final/*.xcframework.zip
+```
+
+### 7. Update Package.swift and this README
+
+In `Package.swift`, update `releaseURL` to point to the new version tag and replace the four `checksum:` values with the SHA-256 values from step 5.
+
+Update the versions table in this README.
+
+Commit, push to `main`, then move the version tag to the new `Package.swift` commit:
+
+```bash
+git add Package.swift README.md
+git commit -m "Update to <new-version>"
+git push
+NEW_SHA=$(git rev-parse HEAD)
+gh api --method PATCH repos/JotitIO/google-mlkit-digitalink-swiftpm/git/refs/tags/<new-version> \
+  --field sha="$NEW_SHA" --field force=true
+```
