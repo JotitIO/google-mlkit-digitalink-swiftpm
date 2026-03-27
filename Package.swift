@@ -2,7 +2,7 @@
 
 import PackageDescription
 
-let releaseURL = "https://github.com/JotitIO/google-mlkit-digitalink-swiftpm/releases/download/1.2.1"
+let releaseURL = "https://github.com/JotitIO/google-mlkit-digitalink-swiftpm/releases/download/1.2.2"
 
 let package = Package(
     name: "GoogleMLKitDigitalInkRecognition",
@@ -31,12 +31,12 @@ let package = Package(
         .binaryTarget(
             name: "MLKitDigitalInkRecognition",
             url: "\(releaseURL)/MLKitDigitalInkRecognition.xcframework.zip",
-            checksum: "72d29f584a6c2d5b10d9e73e64f68c674a5e38cd7eda1a999bcfadac967f5e0c"
+            checksum: "91e94369f9327936131ba16adfebb2cadac0bcdc34db96e702d15da2badc4be6"
         ),
         .binaryTarget(
             name: "MLKitMDD",
             url: "\(releaseURL)/MLKitMDD.xcframework.zip",
-            checksum: "c128f4d37136914d4a2da8b8fbfc14901a0510bbc89c06ab55089774a01d986e"
+            checksum: "e14ef763708ce68e82cdec57799bc72d8d71414a2b9adceca4514709b32abcfd"
         ),
         .binaryTarget(
             name: "MLKitCommon",
