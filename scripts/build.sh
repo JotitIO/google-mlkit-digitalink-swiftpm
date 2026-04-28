@@ -21,10 +21,10 @@ sign_xcframework() {
     local NAME="$1"
     local CERT="${SIGNING_CERT:-Apple Distribution}"
     echo "
---- Signing $NAME.xcframework with: $CERT ---"
-    xcodebuild -sign-xcframework \
-        -xcframework "$OUTPUT_DIR/$NAME.xcframework" \
-        -certificate "$CERT"
+--- Signing frameworks inside $NAME.xcframework with: $CERT ---"
+    find "$OUTPUT_DIR/$NAME.xcframework" -name "*.framework" -type d | while read -r fw; do
+        codesign --force --sign "$CERT" "$fw"
+    done
 }
 
 build_xcframework() {
