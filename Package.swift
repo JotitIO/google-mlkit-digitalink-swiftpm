@@ -2,7 +2,7 @@
 
 import PackageDescription
 
-let releaseURL = "https://github.com/JotitIO/google-mlkit-digitalink-swiftpm/releases/download/1.2.4"
+let releaseURL = "https://github.com/JotitIO/google-mlkit-digitalink-swiftpm/releases/download/1.2.5"
 
 let package = Package(
     name: "GoogleMLKitDigitalInkRecognition",
