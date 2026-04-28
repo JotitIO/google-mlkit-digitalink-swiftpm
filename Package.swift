@@ -31,22 +31,22 @@ let package = Package(
         .binaryTarget(
             name: "MLKitDigitalInkRecognition",
             url: "\(releaseURL)/MLKitDigitalInkRecognition.xcframework.zip",
-            checksum: "3480ea4970239c0b9f083e223924b5b7989d8ec492688a298986fd32b2b3c97d"
+            checksum: "eefafe63431c9d05a2c572ad35cbe54935738c17fb95110a944f5850ebfb2fec"
         ),
         .binaryTarget(
             name: "MLKitMDD",
             url: "\(releaseURL)/MLKitMDD.xcframework.zip",
-            checksum: "99bf49a75dc807147c77f7754ae495b472060f8ed7c9c7051728fc18a48a7155"
+            checksum: "36c016d3372907c66635ddc561b963932aa87198d8c65f1d69861a1c49ceefe6"
         ),
         .binaryTarget(
             name: "MLKitCommon",
             url: "\(releaseURL)/MLKitCommon.xcframework.zip",
-            checksum: "9f1a2647ce8e5c63f74abe6bf733d91b3a95a6154b906cfde91b68849d373dbf"
+            checksum: "6aa790455592e9b506ecb455a4b1da5f47356c16bfd66ea1ed240b8b70055669"
         ),
         .binaryTarget(
             name: "GoogleToolboxForMac",
             url: "\(releaseURL)/GoogleToolboxForMac.xcframework.zip",
-            checksum: "f839e6425d7a7be1a60e0f9f7632e1c003b3f45e8822f40cfa0e5256974e4762"
+            checksum: "75a61eab763187dd69e4af0f03f6502a5d36b8d12307f8d8a7145b6c66bcfe54"
         ),
         .target(
             name: "Common",
