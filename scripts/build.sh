@@ -2,8 +2,8 @@
 # Builds xcframeworks for MLKitDigitalInkRecognition from CocoaPod binary tarballs.
 # Run from the repo root. Requires: lipo, ar, ranlib, xcodebuild, curl, shasum.
 #
-# Usage: ./scripts/build.sh <MLKitDigitalInkRecognition-version> <MLKitMDD-version> <MLKitCommon-version>
-# Example: ./scripts/build.sh 7.0.0 9.0.0 13.0.0
+# Usage: SIGNING_CERT="Apple Distribution: Your Team (TEAMID)" ./scripts/build.sh <dig-ver> <mdd-ver> <common-ver>
+# Example: SIGNING_CERT="Apple Distribution: Jotit Inc (ABC123)" ./scripts/build.sh 7.0.0 9.0.0 13.0.0
 
 set -euo pipefail
 
@@ -17,12 +17,23 @@ mkdir -p "$OUTPUT_DIR"
 
 echo "Working directory: $WORK_DIR"
 
+sign_xcframework() {
+    local NAME="$1"
+    local CERT="${SIGNING_CERT:-Apple Distribution}"
+    echo "
+--- Signing $NAME.xcframework with: $CERT ---"
+    xcodebuild -sign-xcframework \
+        -xcframework "$OUTPUT_DIR/$NAME.xcframework" \
+        -certificate "$CERT"
+}
+
 build_xcframework() {
     local NAME="$1"
     local TARBALL_URL="$2"
     local NEEDS_AR="$3"
 
-    echo "\n=== Building $NAME.xcframework ==="
+    echo "
+=== Building $NAME.xcframework ==="
     local SRC="$WORK_DIR/$NAME"
     mkdir -p "$SRC"
     echo "Downloading $NAME..."
@@ -76,6 +87,8 @@ PLIST
         -framework "$SIM/$NAME.framework" \
         -output "$OUTPUT_DIR/$NAME.xcframework"
     echo "Built: $OUTPUT_DIR/$NAME.xcframework"
+
+    sign_xcframework "$NAME"
 }
 
 # Fetch podspec source URL
@@ -99,12 +112,16 @@ build_xcframework "MLKitCommon" "$COMMON_URL" "false"
 # GoogleToolboxForMac needs CocoaPods build — reuse from d-date/google-mlkit-swiftpm
 # matching the MLKitCommon version in use
 DDATE_RELEASE=$([ "$COMMON_VERSION" = "14.0.0" ] && echo "9.0.0" || echo "8.0.0")
-echo "\n=== Downloading GoogleToolboxForMac from d-date/google-mlkit-swiftpm $DDATE_RELEASE ==="
+echo "
+=== Downloading GoogleToolboxForMac from d-date/google-mlkit-swiftpm $DDATE_RELEASE ==="
 curl -sL "https://github.com/d-date/google-mlkit-swiftpm/releases/download/$DDATE_RELEASE/GoogleToolboxForMac.xcframework.zip" \
     -o "$OUTPUT_DIR/GoogleToolboxForMac.xcframework.zip"
 unzip -qo "$OUTPUT_DIR/GoogleToolboxForMac.xcframework.zip" -d "$OUTPUT_DIR"
 
-echo "\n=== Zipping xcframeworks ==="
+sign_xcframework "GoogleToolboxForMac"
+
+echo "
+=== Zipping xcframeworks ==="
 cd "$OUTPUT_DIR"
 for fw in MLKitDigitalInkRecognition MLKitMDD MLKitCommon GoogleToolboxForMac; do
     zip -r "${fw}.xcframework.zip" "${fw}.xcframework" -q
@@ -112,5 +129,6 @@ for fw in MLKitDigitalInkRecognition MLKitMDD MLKitCommon GoogleToolboxForMac; d
 done
 
 rm -rf "$WORK_DIR"
-echo "\nDone. Update Package.swift checksums with the values above, then:"
-echo "  gh release create <version> $OUTPUT_DIR/*.xcframework.zip"
+echo "
+Done. Update Package.swift checksums with the values above, then:"
+echo "  gh release create 1.2.3 $OUTPUT_DIR/*.xcframework.zip"
