@@ -2,7 +2,7 @@
 
 import PackageDescription
 
-let releaseURL = "https://github.com/JotitIO/google-mlkit-digitalink-swiftpm/releases/download/1.2.3"
+let releaseURL = "https://github.com/JotitIO/google-mlkit-digitalink-swiftpm/releases/download/1.2.4"
 
 let package = Package(
     name: "GoogleMLKitDigitalInkRecognition",
@@ -31,22 +31,22 @@ let package = Package(
         .binaryTarget(
             name: "MLKitDigitalInkRecognition",
             url: "\(releaseURL)/MLKitDigitalInkRecognition.xcframework.zip",
-            checksum: "ccdf8a55ba3db0572d20a5d39a7aded4e0fa54d8e7d045a215ccd7c844a4251f"
+            checksum: "3480ea4970239c0b9f083e223924b5b7989d8ec492688a298986fd32b2b3c97d"
         ),
         .binaryTarget(
             name: "MLKitMDD",
             url: "\(releaseURL)/MLKitMDD.xcframework.zip",
-            checksum: "ad64410fc906ca3e4807c1e7c34b8d37f199c652d5c75b89674c0911b9bec403"
+            checksum: "99bf49a75dc807147c77f7754ae495b472060f8ed7c9c7051728fc18a48a7155"
         ),
         .binaryTarget(
             name: "MLKitCommon",
             url: "\(releaseURL)/MLKitCommon.xcframework.zip",
-            checksum: "f4041df6a2767d08b6c5a9e7de3cba4adb6c8b4345b13060fa6116491466fd01"
+            checksum: "9f1a2647ce8e5c63f74abe6bf733d91b3a95a6154b906cfde91b68849d373dbf"
         ),
         .binaryTarget(
             name: "GoogleToolboxForMac",
             url: "\(releaseURL)/GoogleToolboxForMac.xcframework.zip",
-            checksum: "82c86aecdfa3ce18d4ca536c003837ca08397e9059886f524f405a3d1e91194a"
+            checksum: "f839e6425d7a7be1a60e0f9f7632e1c003b3f45e8822f40cfa0e5256974e4762"
         ),
         .target(
             name: "Common",
